@@ -1,5 +1,5 @@
-function getLinks(){
-  let response = UrlFetchApp.fetch("https://www.manoramaonline.com/news/latest-news.html").getContentText();
+function getLinks(topic){
+  let response = UrlFetchApp.fetch(`https://www.manoramaonline.com/news/${topic}.html`).getContentText();
   const $  = Cheerio.load(response);
   let links = [];
   $('.subhead-001-ml a').each(function(){
@@ -40,7 +40,7 @@ function doPost(e){
         let btnMarkup = {
           resize_keyboard: true,
           one_time_keyboard: true,
-          keyboard: [['Top news'],['Kerala'],['India'],['World'],['Business'],['Sports'],['Finance'],['Auto']]
+          keyboard: [['Get updates'],['Stop updates']]
         };
         data = {
         text : `*Hello ${fullName}!*\nWe will update you with latest news around the globe in *Malayalam*`,
@@ -49,55 +49,61 @@ function doPost(e){
         reply_markup : btnMarkup
     };
   }
-  if(messageText=="Top news"){
-
+  if(messageText=="Get updates"){
+    let spreadSheet = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70');
+    let sheet = spreadSheet.getSheetByName('user_list');
+    sheet.appendRow([chatId]);
+        sendChatAction(chatId);
+        let btnMarkup = {
+          resize_keyboard: true,
+          one_time_keyboard: true,
+          keyboard: [['Go back']]
+        };
+        data = {
+        text : `*Ok! You will recieve news updates from now on.*`,
+        parse_mode : "markdown",
+        chat_id : chatId,
+        reply_markup : btnMarkup
+    };
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
+  else if(messageText=="Stop updates"){
+    let spreadSheet = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70');
+    let sheet = spreadSheet.getSheetByName('user_list');
+    const rowCount = sheet.getMaxRows();
+    let rows = sheet.getDataRange();
+    let values = rows.getValues();
+    for(let i=0;i<rowCount;i++){
+      if(values[i][0]==chatId){
+        sheet.deleteRow(i+1);
+        break;
+      }
+    }
+    sendChatAction(chatId);
+    let btnsMarkup = {
+      resize_keyboard: true,
+      one_time_keyboard: true,
+      keyboard: [['Go back']]
+    };
+    data = {
+      text : `*You will not recieve any news updates from now on.*`,
+      parse_mode : "markdown",
+      chat_id : chatId,
+      reply_markup : btnsMarkup
+    };
+  }
+  else if(messageText=="Go back"){
+    sendChatAction(chatId);
+    let btnsMarkup = {
+      resize_keyboard: true,
+      one_time_keyboard: true,
+      keyboard: [['Get updates'],['Stop updates']]
+    };
+    data = {
+      text : `*Main menu*`,
+      parse_mode : "markdown",
+      chat_id : chatId,
+      reply_markup : btnsMarkup
+    };
+  }
   sendReply(chatId,data);
 }
