@@ -8,7 +8,7 @@ function getLinks(){
   return links;
 }
 function sendReply(chatId,data){
-  const endPoint = "https://api.telegram.org/bot1879463383:AAGuLxW0ev8wEK2EtD-rYi3BsgAyLg2xEb4/sendMessage";
+  const endPoint = "https://api.telegram.org/bot<bot_token>/sendMessage";
   const options = {
     method : "post",
     contentType: 'application/json',
@@ -21,7 +21,7 @@ function sendChatAction(chatId){
     chat_id:chatId,
     action:'typing'
   };
-  const endPoint = "https://api.telegram.org/bot1879463383:AAGuLxW0ev8wEK2EtD-rYi3BsgAyLg2xEb4/sendChatAction";
+  const endPoint = "https://api.telegram.org/bot<bot_token>/sendChatAction";
   const options = {
     method : "post",
     contentType: 'application/json',
@@ -50,8 +50,8 @@ function doPost(e){
     };
   }
   if(messageText=="Get updates"){
-    let spreadSheet = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70');
-    let sheet = spreadSheet.getSheetByName('user_list');
+    let spreadSheet = SpreadsheetApp.openById('<spread_sheet_id>');
+    let sheet = spreadSheet.getSheetByName('<heet_name');
     sheet.appendRow([chatId]);
         sendChatAction(chatId);
         let btnMarkup = {
@@ -67,8 +67,8 @@ function doPost(e){
     };
   }
   else if(messageText=="Stop updates"){
-    let spreadSheet = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70');
-    let sheet = spreadSheet.getSheetByName('user_list');
+    let spreadSheet = SpreadsheetApp.openById('<spread_sheet_id>');
+    let sheet = spreadSheet.getSheetByName('<sheet_name>');
     const rowCount = sheet.getMaxRows();
     let rows = sheet.getDataRange();
     let values = rows.getValues();
@@ -109,7 +109,7 @@ function doPost(e){
 }
 function getUpdates(){
   let links = getLinks();
-  let sheet = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70').getSheetByName('news_cache');
+  let sheet = SpreadsheetApp.openById('<spread_sheet_id>').getSheetByName('<sheet_name>');
   let linksTosend = [];
   let values = sheet.getDataRange().getValues();
   const rowCount = sheet.getMaxRows();
@@ -125,7 +125,7 @@ function getUpdates(){
   }
   let chatIdList = [];
   if(linksTosend.length!=0){
-    let sheet = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70').getSheetByName('user_list');
+    let sheet = SpreadsheetApp.openById('<spread_sheet_id>').getSheetByName('<sheet_name>');
     let values = sheet.getDataRange().getValues();
     for(i in values){
       chatIdList.push(values[i][0].toString());
