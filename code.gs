@@ -157,10 +157,23 @@ function getContent(url){
   let p = $(".article p").text();
   p = p.replace(p.slice(p.indexOf('English Summary')),'');
   h = $(".story-headline").text();
-  return `*${h}*\n\n${p}`;
+  let imgUrl = $(".story-figure-image img").attr("src");
+  //return `*${h}*\n\n${p}`;
+  let telegraphUrl = `https://api.telegra.ph/createPage`;
+  let data = {
+    access_token : `4e09e0cb375626fd57c89d7d7e70855c4957a2329d736e4bfe544a52f757`,
+    title : h,
+    author_name : `Barbarian Developer`,
+    content : [{"tag":"figure","children":[{"tag":"img","attrs":{"src":`${imgUrl.replace("/","\/")}`}}]},{'tag':'p','children':[`${p}`]}],
+  };
+  let options = {
+    method : "post",
+    contentType: 'application/json',
+    payload:JSON.stringify(data)
+  };
+  let telegraphResponse = UrlFetchApp.fetch(telegraphUrl,options).getContentText();
+  return (JSON.parse(telegraphResponse).result.url).replace("\\","");
 }
-
-
 
 
 
