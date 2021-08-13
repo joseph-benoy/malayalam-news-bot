@@ -3,7 +3,7 @@ function getLinks(){
   const $  = Cheerio.load(response);
   let links = [];
   $('.subhead-001-ml a').each(function(){
-    links.push({link:$(this).attr("href"),title:$(this).attr("title")});
+    links.push($(this).attr("href"));
   });
   return links;
 }
@@ -52,68 +52,37 @@ function getUpdates(){
   let links = getLinks();
   let sheet = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70').getSheetByName('news_cache');
   let linksTosend = [];
-  let values = sheet.getDataRange().getValues();
-  const rowCount = sheet.getMaxRows();
-  let urlList = [];
-  for(let i=0;i<links.length;i++){
-    urlList.push(links[i].link);
+  let cache = sheet.getDataRange().getValues();
+  let newsCache = []
+  for(let i of cache){
+    newsCache.push(i[0]);
   }
-  let list = [];
-  for(let i=0;i<values.length;i++){
-    if(urlList.includes(values[i][0])){
-      list.push(values[i][0]);
+  //console.log(newsCache)
+  for(let link of links){
+    if(!newsCache.includes(link)){
+      sheet.appendRow([link]);
+      linksTosend.push(link);
     }
-  }
-  for(let i=0;i<urlList.length;i++){
-    if(!list.includes(urlList[i])){
-      list.push(urlList[i]);
-      linksTosend.push(urlList[i]);
-    }
-  }
-  sheet.clear();
-  for(let i=0;i<list.length;i++){
-    sheet.appendRow([list[i]]);
   }
   let chatIdList = [];
-  if(linksTosend.length!=0){
-    let sheet = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70').getSheetByName('user_list');
-    let values = sheet.getDataRange().getValues();
-    for(i in values){
-      chatIdList.push(values[i][0].toString());
-    }
+  let sheetUser = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70').getSheetByName('user_list');
+  let values = sheetUser.getDataRange().getValues();
+  for(i in values){
+    chatIdList.push(values[i][0].toString());
   }
-  for(i in linksTosend){
-    const content = getContent(linksTosend[i]);
-    for(i in chatIdList){
-      sendChatAction(chatIdList[i]);
+  for(link of linksTosend){
+    for(id of chatIdList){
         data = {
-          text : content,
+          text : link,
           parse_mode : "markdown",
-          chat_id : chatIdList[i],
+          chat_id : id,
         };     
-        sendReply(chatIdList[i],data);
+        sendReply(id,data);
     }
   }
 }
-function getContent(url){
-  let response = UrlFetchApp.fetch(url).getContentText();
-  const $ = Cheerio.load(response);
-  let p = $(".article p").text();
-  p = p.replace(p.slice(p.indexOf('English Summary')),'');
-  h = $(".story-headline").text();
-  let imgUrl = $(".story-figure-image img").attr("src");
-  let telegraphUrl = `https://api.telegra.ph/createPage`;
-  let data = {
-    access_token : `4e09e0cb375626fd57c89d7d7e70855c4957a2329d736e4bfe544a52f757`,
-    title : h,
-    author_name : `Barbarian Developer`,
-    content : [{"tag":"figure","children":[{"tag":"img","attrs":{"src":`${imgUrl.replace("/","\/")}`}}]},{'tag':'p','children':[`${p}`]}],
-  };
-  let options = {
-    method : "post",
-    contentType: 'application/json',
-    payload:JSON.stringify(data)
-  };
-  let telegraphResponse = UrlFetchApp.fetch(telegraphUrl,options).getContentText();
-  return (JSON.parse(telegraphResponse).result.url).replace("\\","");
+
+function clearNewsCache(){
+  let sheet = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70').getSheetByName('news_cache');
+  sheet.clear();
 }
