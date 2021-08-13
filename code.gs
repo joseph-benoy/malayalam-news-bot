@@ -8,7 +8,7 @@ function getLinks(){
   return links;
 }
 function sendReply(chatId,data){
-  const endPoint = "https://api.telegram.org/bot1879463383:AAGuLxW0ev8wEK2EtD-rYi3BsgAyLg2xEb4/sendMessage";
+  const endPoint = "https://api.telegram.org/bot<bot_api>/sendMessage";
   const options = {
     method : "post",
     contentType: 'application/json',
@@ -21,7 +21,7 @@ function sendChatAction(chatId){
     chat_id:chatId,
     action:'typing'
   };
-  const endPoint = "https://api.telegram.org/bot1879463383:AAGuLxW0ev8wEK2EtD-rYi3BsgAyLg2xEb4/sendChatAction";
+  const endPoint = "https://api.telegram.org/bot<bot_key>/sendChatAction";
   const options = {
     method : "post",
     contentType: 'application/json',
@@ -36,7 +36,7 @@ function doPost(e){
   const fullName = update.message.from.first_name+" "+update.message.from.last_name;
   let data = {};
   if(messageText=="/start"){
-    let spreadSheet = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70');
+    let spreadSheet = SpreadsheetApp.openById('<sheet_id>');
     let sheet = spreadSheet.getSheetByName('user_list');
     sheet.appendRow([chatId,fullName,new Date().toLocaleDateString()]);
     sendChatAction(chatId);
@@ -50,7 +50,7 @@ function doPost(e){
 }
 function getUpdates(){
   let links = getLinks();
-  let sheet = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70').getSheetByName('news_cache');
+  let sheet = SpreadsheetApp.openById('<sheet_id>').getSheetByName('news_cache');
   let linksTosend = [];
   let cache = sheet.getDataRange().getValues();
   let newsCache = []
@@ -65,7 +65,7 @@ function getUpdates(){
     }
   }
   let chatIdList = [];
-  let sheetUser = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70').getSheetByName('user_list');
+  let sheetUser = SpreadsheetApp.openById('<sheet_id>').getSheetByName('user_list');
   let values = sheetUser.getDataRange().getValues();
   for(i in values){
     chatIdList.push(values[i][0].toString());
@@ -83,6 +83,6 @@ function getUpdates(){
 }
 
 function clearNewsCache(){
-  let sheet = SpreadsheetApp.openById('1p0wSJ8WuvH5TRoLvzveDoQQyLLLLhBPOsF2k5nGtU70').getSheetByName('news_cache');
+  let sheet = SpreadsheetApp.openById('<sheet_id>').getSheetByName('news_cache');
   sheet.clear();
 }
