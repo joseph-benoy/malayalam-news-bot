@@ -8,7 +8,7 @@ function getLinks(){
   return links;
 }
 function sendReply(chatId,data){
-  const endPoint = "https://api.telegram.org/bot<bot_api>/sendMessage";
+  const endPoint = "https://api.telegram.org/bot<sheet_id>/sendMessage";
   const options = {
     method : "post",
     contentType: 'application/json',
@@ -21,7 +21,7 @@ function sendChatAction(chatId){
     chat_id:chatId,
     action:'typing'
   };
-  const endPoint = "https://api.telegram.org/bot<bot_key>/sendChatAction";
+  const endPoint = "https://api.telegram.org/bot<bot_token>/sendChatAction";
   const options = {
     method : "post",
     contentType: 'application/json',
@@ -34,11 +34,12 @@ function doPost(e){
   const messageText = update.message.text;
   const chatId = update.message.chat.id;
   const fullName = update.message.from.first_name+" "+update.message.from.last_name;
+  const username = update.message.from.username;
   let data = {};
   if(messageText=="/start"){
     let spreadSheet = SpreadsheetApp.openById('<sheet_id>');
     let sheet = spreadSheet.getSheetByName('user_list');
-    sheet.appendRow([chatId,fullName,new Date().toLocaleDateString()]);
+    sheet.appendRow([chatId,fullName,username,new Date().toLocaleDateString()]);
     sendChatAction(chatId);
     data = {
         text : `*Hello ${fullName}!*\nWe will update you with latest news around the globe in *Malayalam*`,
@@ -83,6 +84,6 @@ function getUpdates(){
 }
 
 function clearNewsCache(){
-  let sheet = SpreadsheetApp.openById('<sheet_id>').getSheetByName('news_cache');
+  let sheet = SpreadsheetApp.openById('<sheet id>').getSheetByName('news_cache');
   sheet.clear();
 }
